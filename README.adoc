@@ -1,0 +1,36 @@
+= spring-boot-2-workshop
+
+チーム内勉強会用。
+
+== 前提条件
+
+* 開催時期 2020/10 最新の、 2.3.4 を前提verとする。
+
+== 参考資料
+
+公式ドキュメント::
+
+* https://docs.spring.io/spring-boot/docs/2.3.4.RELEASE/[公式リファレンス]
+* https://spring.pleiades.io/spring-boot/docs/2.3.4.RELEASE/reference/html/[Pleiadesによる日本語版]
+
+3rd-Party::
+
+* https://github.com/Macchinetta/springboot-development-reference[Macchinetta(NTT版TERASOLUNA)の開発ガイド1.0.0(β)]
+** HTMLで公開していないので、自分でmaven buildする必要がある
+
+== 実施内容
+
+Day1-Bootの仕組み::
+
+* SpringBootとは？
+** それまでのSpringアプリケーション
+** かわったこと
+** Bootiful???
+** コンテナフレンドリ???
+* Hello Spring Boot !!!
+* `@SpringBootApplication`?
+* Auto-Configuration?
+
+Day2::
+
+後で書く
