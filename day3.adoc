@@ -1,0 +1,27 @@
+= Day3 Boot MVC
+
+https://spring.pleiades.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-developing-web-applications[7. Web アプリケーションの開発]
+がよくできているので、ココをベースに。
+
+== RestAPIアプリを再確認
+
+== Embedded-Tomcatとは
+
+== MVC周りで特に重要な部分(SpringMVC少なめ/Boot中心)
+
+=== MessageConverters
+
+=== リクエストパス
+
+=== Error-Handling
+
+==== RestControllerAdvise
+
+==== ErrorController
+
+== DBアクセス周り
+
+=== DataSources
+
+=== MyBatis Starter
+

@@ -1,0 +1,104 @@
+= Day2 Boot basis
+
+== `@SpringBootApplication`?
+
+実は、 `RESTful Web サービスの構築` に書いてあります。気づきました？
+
+> @SpringBootApplication は、次のすべてを追加する便利なアノテーションです。 +
+> @Configuration: アプリケーションコンテキストの Bean 定義のソースとしてクラスにタグを付けます。 +
+> @EnableAutoConfiguration: クラスパス設定、他の Bean、およびさまざまなプロパティ設定に基づいて Bean の追加を開始するよう Spring Boot に指示します。 +
+  例： spring-webmvc がクラスパスにある場合、このアノテーションはアプリケーションに Web アプリケーションとしてフラグを立て、DispatcherServlet のセットアップなどの主要な動作をアクティブにします。 +
+> @ComponentScan: Spring に、com/example パッケージ内の他のコンポーネント、構成、およびサービスを探して、コントローラーを検出させるように指示します。
+
+この中で、特にBootで新しい要素は、 `AutoConfiguration` です。
+
+== Auto-Configuration?
+
+Spring Bootの肝は、これです。
+https://github.com/Macchinetta/springboot-development-reference/blob/master/src/main/asciidoc/ja/SpringBoot_architecture.adoc#12-%E8%AA%AD%E3%81%BF%E8%BE%BC%E3%81%BE%E3%82%8C%E3%82%8Bac%E3%82%AF%E3%83%A9%E3%82%B9[ココらへん]をもとに、意味を確認
+
+以降の話は、
+https://qiita.com/kazuki43zoo/items/8645d9765edd11c6f1dd[古いけどココ]
+と同じような話。
+
+=== Auto-Configurationがやること
+
+* `@EnableAutoConfiguration` で 自動設定がONになると、
+  クラスパスの jar に入っている `/META-INF/spring.factories` を読んで、処理するConfigurationクラスたちを特定する。
+* Configurationクラスたちを最初から読んでいく。
+** 読み込むかどうか。そもそも不要なら飛ばす。
+** 依存関係があるときは、その順序を整合させる。
+*** クラスの前後関係は `@AutoConfigureAfter/Before` 等でカスタムできる。 ex) データベース周りのBeanを作ったあとにMyBatisのBeanを作る。
+** Beanの生成でも、条件によって作る/作らないを切り替える
+*** Spring Framework の `@org.springframework.context.annotation.Conditional` をベースに、
+    Spring Boot で `@ConditionalOn～` という合成アノテーションを多数提供している。
+    これによって、「コネクションプールは、tomcat-jdbcがクラスパスにあるからこれで作ろう。dbcp2は入ってないからスキップしよう。」ということができる。
+* debugをON( `--debug` を付与して起動)すると、どれが適用されたかレポートが出るのでトラブルシューティングしやすい。
+
+=== Starter?
+
+https://spring.pleiades.io/spring-boot/docs/current/reference/html/using-spring-boot.html#using-boot-starter
+
+> スターターは、アプリケーションに含めることができる便利な依存関係記述子のセットです。
+
+spring-bootのstarter=依存関係や設定を自動化するモジュール
+
+* 依存関係を自動化 = Maven/Gradle
+* 設定を自動化 = AutoConfiguration
+
+要は、 *XXX-starter.jar をクラスパスに入れれば、必要なJarも解決するし、設定も自動で適用されるよ* ということ。ラクチン。
+
+https://spring.pleiades.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-custom-starter
+
+> 具体的には、カスタムスターターには次のものを含めることができます。 +
+> *「acme」の自動構成コードを含む autoconfigure モジュール。 +
+> * autoconfigure モジュールへの依存関係を提供する starter モジュール、および「acme」と通常役立つその他の依存関係。 +
+>   簡単に言えば、スターターを追加すると、そのライブラリの使用を開始するために必要なすべてが提供されます。 +
+> この 2 つのモジュールでの分離は、決して必要ではありません。
+
+AP基盤屋さん的には、「Bootで開発するプロジェクトでは、共通機能をStarterで提供するのが基本。」といえる。
+
+== 基本機能
+
+=== プロパティファイル
+
+https://spring.pleiades.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config[ココ]を中心に。
+
+* `application.properties` に書く
+** javaのproperties形式 or YAML形式
+*** YAMLは https://github.com/kislyuk/yq[yq] のようなツールを使わないとgrepしにくいので、propertiesが良いと思う
+* https://spring.pleiades.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config-typesafe-configuration-properties[ココ]
+  がすごく重要。Bootでは「プロパティファイルをJavaBeanにバインディングして扱うのが普通」であり、そのための機能が充実している。
+
+=== プロファイル
+
+https://spring.pleiades.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-profiles[ココ]を読む。
+
+Spring Framework で提供されるプロファイルを、プロパティファイルに関連付けよう的な。
+
+=== ロギング
+
+https://spring.pleiades.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-logging[ココ]を読む。
+
+大事なことは以下。
+
+* Java界隈では、ロギングライブラリは色々ある。それでもクラスパスに入れるだけで基本的な動作をする。
+* デファクトは `slf4j + logback` であることもあり、 Logback は特別に拡張されている。
+** プロファイルによる設定切り替えができる
+** 環境変数を通じて、動的にファイル名等を変更することができる
+
+=== 開発者ツール 
+
+https://spring.pleiades.io/spring-boot/docs/current/reference/html/using-spring-boot.html#using-boot-devtools[ココ]の話。
+
+* Live Reload とか一見有用そうに見えるけど、ちょっといじったらすぐリビルドが走るので、リッチな環境じゃないと耐えられないという…
+
+== ビルド関連
+
+https://spring.pleiades.io/spring-boot/docs/current/reference/html/build-tool-plugins.html#build-tool-plugins[ココ]の話。
+
+Maven/Gradle が基本です。
+
+== (本筋とは関係ない) Lombok
+
+https://projectlombok.org/[Lombok]を使うと、Properitesクラス作るときなど、サクッとできて便利です。

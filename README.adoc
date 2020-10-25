@@ -20,17 +20,8 @@
 
 == 実施内容
 
-Day1-Bootの仕組み::
-
-* SpringBootとは？
-** それまでのSpringアプリケーション
-** かわったこと
-** Bootiful???
-** コンテナフレンドリ???
-* Hello Spring Boot !!!
-* `@SpringBootApplication`?
-* Auto-Configuration?
-
-Day2::
-
-後で書く
+* Day1: Boot入門
+* Day2: Boot basis
+* Day3: Boot MVC
+* Day4: Boot Test
+* Day5: Boot Monitor
