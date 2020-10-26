@@ -5,19 +5,56 @@ https://spring.pleiades.io/spring-boot/docs/current/reference/html/spring-boot-f
 
 == RestAPIアプリを再確認
 
+`hello` アプリを作ってみた。
+
 == Embedded-Tomcatとは
+
+https://tomcat.apache.org/tomcat-9.0-doc/api/org/apache/catalina/startup/Tomcat.html
+
+Java API経由で Servletを追加して、startすることができる。
+
+もともと、TomcatはPureJavaなServletコンテナで、プロダクト側が起動シーケンスを管理していた。
+設定は web.xml のみが手段だった。
+
+その後、 Servletの仕様が更新され、web.xmlは必須ではなくアノテーションによる記述が可能になるなど進化を続けた。
+
+その過程で、テスト用として組み込みTomcatが提供され始め、商用でも当たり前のように使われるようになった。
 
 == MVC周りで特に重要な部分(SpringMVC少なめ/Boot中心)
 
+アーキテクチャは
+http://terasolunaorg.github.io/guideline/5.6.0.RELEASE/ja/ArchitectureInDetail/WebServiceDetail/REST.html#restoverviewaboutrestfulwebservicedevelopment[TERA]
+が解説してくれている。
+
 === MessageConverters
+
+なにか知っていますか？
+
+https://www.baeldung.com/spring-httpmessageconverter-rest[3rd party 記事] ですが…
+
+カスタマイズする際は、Bean登録するだけというお手軽仕様です。
 
 === リクエストパス
 
+誰が、パスマッチングしているんでしょう？
+
 === Error-Handling
 
-==== RestControllerAdvise
+==== RestControllerAdvice & ResponseEntityExceptionHandler 
+
+Spring MVCの仕組み
+
+https://qiita.com/shotana/items/f3627e45feb912946c7c
 
 ==== ErrorController
+
+Spring Bootの仕組み
+
+https://spring.pleiades.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-error-handling
+
+==== 比較
+
+https://qiita.com/haseesah/items/6b0f0fcfe681734e2617
 
 == DBアクセス周り
 

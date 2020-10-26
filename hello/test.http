@@ -1,0 +1,18 @@
+
+###
+
+GET http://localhost:8080/echo
+
+###
+
+GET http://localhost:8080/echo?msg=yeah!!
+
+###
+
+POST http://localhost:8080/greeting HTTP/1.1
+Content-Type: application/json
+
+{
+	"name": "kuramotoki",
+	"age": 18
+}
