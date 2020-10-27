@@ -1,17 +1,96 @@
 = Day4 Boot Test
 
+https://spring.pleiades.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-testing[公式]
+だと概要がつかみにくい場合、
+https://meetup-jp.toast.com/452[コチラ]
+がわかりやすいと思います。古いので注意ですが、基本的な考え方は変わってないです。
+
+== Spring Bootの提供モジュール
+
+* spring-boot-test : テストユーティリティ
+* spring-boot-test-autoconfigure : テスト用のAutoConfig
+* spring-boot-starter-test : starter
+** Junit, Assertj, Hamcrest, Mockito 等 テスティングフレームワークも依存関係に含まれる。
+
 == JUnitサポート
+
+* JUnit4, 5 をサポートしている。 Junit5 の利用を基本としましょう。
+
+=== `@SpringBootTest`
+
+このアノテーションの役目。
+
+* テスト用のApplicationContextを作る。
+** ここでも設定を自動検出する。 `@SpringBootApplication` と連動して動作する動きをする。
+* 必要に応じて、テスト用のWeb環境を作成する。
+
+自動検出されるのは `@SpringBootConfiguration` がついたクラス。 +
+このアノテーションは @Configuration と同じ意味ですが @SpringBootTest によって自動的にテストコンフィグレーションに設定される対象になる。 +
+@SpringBootApplication アノテーションは @SpringBootConfiguration のアノテーションを含んだ合成アノテーションであるため、
+@SpringBootTest アノテーションは @SpringBootApplication のクラスをテストに含める結果になる。
+
+=== `@TestConfiguration`
+
+テストだからこその設定やBeanがあるわけで、それはどう実現するか？
+
+* `@SpringBootTest` のclassesを指定することで、一部だけ設定を有効化する。
+* `@TestConfiguration` で専用Beanを作る
+
+Beanを上書きするときは以下の設定を忘れずに。
+
+.application.properties
+....
+spring.main.allow-bean-definition-overriding=true
+....
 
 == Mockサポート
 
-== テストにおける Auto-Configuration
+Javaのテストはモックの嵐になりがちですが、もちろんそれもサポート。 +
+`@MockBean` で、MockitoのモックインスタンスがApplicationContextに登録される。 +
+つまり、 `@Autowire` 先がモックになっているということ。
 
 == MockMVC
 
+多分使わないのでさらっと…
+
+Spring MVC のエントリポイントからテストするための `MockMVC` というものがある。Bootではなく、spring-testのモジュール。
+これをBootでちょっと使いやすくしてくれる。
+
+== テストにおける Auto-Configuration (※ココ重要)
+
+すごく便利な `@SpringBootTest` ですが、使わないことに越したことはありません。なぜでしょう？？？
+
+使うときは最小限で。間違っても **アプリケーション全体をスキャンなどしてはならない** です。 +
+基本は Junit5で、Spring関係なくテストするに越したことはありません。
+
+とはいえ、それがツラいときは、classesに最小限の設定をして負荷を抑える必要が出てきます。
+
+と、いうことで、
+https://spring.pleiades.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-testing-spring-boot-applications-testing-autoconfigured-tests[AutoConfig]
+を限定的に適用する方法もあります。
+
 == テストでよく悩むケース
 
-=== テスト対象の可視性
+=== テストの可視性
+
+* 対象クラス
+** フィールド : やみくもにprivateにすると差し替えにくい。差し替えるときは、パッケージprivate。
+* テストクラス(JUnit5のクラス)
+** classもテストメソッドも、大抵はパッケージprivate。publicにするのはユーティリティだけ。
 
 === ログアサーション
 
+いつも悩むログの検証。
+
+* https://www.baeldung.com/junit-asserting-logs[自作Appenderで差し替え]
+** テストケースでひと手間必要なので、コピペにならないよう小細工が必要。
+* https://projects.lidalia.org.uk/slf4j-test/[slf4j-test] を使う
+** slf4jはLoggerの実装がクラスパスに複数あるとエラーで落ちるので、小細工が必要。
+* https://spring.pleiades.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-output-capture-test-utility[OutputCapture] を使う
+
 === プロパティ切り替え
+
+* `application-test.properties` を作ると、 test プロファイル扱いになるので上書きできる。
+* `@SpringBootTest` の properties 要素でいじれる
+* ConfigurationProperties の Beanを書き換えるという荒業も可能。
+** 商用ソースでは事故の元なのでBoot2.2でこれをさせないためのマッピング方法が提供されているが…やむを得ないときに使うことある。
