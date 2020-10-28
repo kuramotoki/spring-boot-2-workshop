@@ -1,0 +1,4 @@
+rootProject.name = 'demo-apm'
+include 'receiver'
+include 'processor'
+include 'publisher'
