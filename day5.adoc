@@ -2,6 +2,101 @@
 
 == Actuator
 
-== Micrometer
+=== Actuator とはなにか
 
-== 分散トレーシング
+https://spring.pleiades.io/spring-boot/docs/2.3.4.RELEASE/reference/html/production-ready-features.html#production-ready[ココ]
+
+要は、アプリケーションを監視および管理する機能の総称。ポイントは以下。
+
+* エンドポイント( `/actuator/*` )が公開される。
+** 様々なエンドポイントがデフォルトで提供されているが、機能が有効になっているのは `info` と `health` だけ。他は攻撃されるとマズイので。
+** この中の一つに `prometheus` がある。
+
+=== どう使うのか
+
+ライブラリを依存関係に含めるだけ。
+
+....
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+}
+....
+
+公開するエンドポイントはプロパティファイルで指定する。
+
+....
+management.endpoints.web.exposure.include=*
+management.endpoints.web.exposure.exclude=env,beans
+....
+
+=== 頻出用途
+
+https://spring.pleiades.io/spring-boot/docs/2.3.4.RELEASE/reference/html/production-ready-features.html#production-ready-endpoints-custom-web[エンドポイントをカスタマイズ]
+もできる。 +
+ちなみに `health` エンドポイントはよくカスタマイズするので、専用のインタフェースがそなわっている。
+https://spring.pleiades.io/spring-boot/docs/2.3.4.RELEASE/reference/html/production-ready-features.html#writing-custom-healthindicators[ココ]
+を参考に作ることができる。 +
+ヘルスチェックは 自身がアクセスするDBが生きているかなど、関連リソースへの疎通を取ることでhealth=okとするため。
+
+=== Kubernetes-Support
+
+k8sの機構に、
+https://kubernetes.io/ja/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/[XXX Probe]
+というものがある。
+
+いずれもコンテナの死活監視のために使われる。
+
+* Liveness Probe : 生きているかチェック。NGならコンテナ再作成。
+* Readiness Probe : リクエスト受付られるかチェック。NGならルーティング対象から外す。
+* Startup Probe(1.18～) : 起動したかチェック。起動中に他のProbeが誤検知しないようにする。
+
+Spring Boot は 2.3.x で、
+https://spring.pleiades.io/spring-boot/docs/2.3.4.RELEASE/reference/html/production-ready-features.html#production-ready-kubernetes-probes[Probeをサポートする]
+ようになった。
+
+サクッとステータスを変更することができる。
+https://spring.io/blog/2020/03/25/liveness-and-readiness-probes-with-spring-boot[コード例]
+
+例えば、コンテナの処理がスローダウンしているので落としたいときに、これを使うとk8s側の制御ができるということになる。
+(これでステータスを変えつつ、自分で止めたらどうなるんだろうなぁ…試してない)
+
+== APM
+
+=== https://micrometer.io/[Micrometer] とは
+
+> Micrometer provides a simple facade over the instrumentation clients for the most popular monitoring systems, allowing you to instrument your JVM-based application code without vendor lock-in.
+
+監視サービスのクライアント。様々なサービスを抽象化して、統一した利用方法にするもの。
+
+https://micrometer.io/docs[ココ]
+にあるとおり、様々なSaaS、Cloud、プロダクトに対応している。
+
+=== APM とは
+
+「アプリケーション・パフォーマンス・マネジメント」の頭文字。
+アプリのパフォーマンスを記録/可視化し、問題の早期発見、自動対処をすることを指す。
+
+従来の監視::
+簡単なヘルスチェック、CPU/メモリといった一部のメトリクス、ログを行って、何かあればアラートをあげるのが普通。
+
+今どきの監視::
+クラウドの浸透によるシステムのビルディングブロック化、マイクロサービスの台頭による複雑化により、
+高度化されたアプリケーションの労力が高まっていく一方。また、従来と異なり、1つのアプリケーションだけを見ていても何もできないので、全体を俯瞰して観察できるようにする必要がある。
+https://cloud.ibm.com/docs/cloud-native?topic=cloud-native-observability-cn&locale=ja[IBMさんの解説]とか読むと雰囲気わかるかも。 +
+トレンドを一言でいうと `可観測性(Observability)` である。
+* 様々なメトリクスを取って時系列でどう変化しているかを可視化、一元化する。
+* どこがボトルネックになっているか、分散トレーシング によって可視化する。
+* ログは一元管理して、クエリ可能にする。
+** なお、可視化＝人間が見る、と捉えがちだけど、機械が見る(＝AIで処理する)という話は最近聞く。
+
+SaaS なら `DataDog` , `New Relic` が有名。 +
+クラウドなら AWS の `Cloud Watch` , GCP の `Stack Driver` など基本全社注力している。 +
+OSS なら、 `prometheus + grafana` + `zipkin or jaegar` + `Fluentd + ElasticSearch` あたり?。
+
+OpenShiftでは `prometheus + grafana` + `jaegar` + `Fluentd + ElasticSearch` だったかと。
+
+=== Let's Try
+
+`demo-apm` で みてみる。
+
+(Trace系はまだです…)

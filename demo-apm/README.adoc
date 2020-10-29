@@ -1,0 +1,36 @@
+= demo-apm
+
+== Usage
+
+docker containers start::
+
+[source,sh]
+----
+$ cd docker/apm
+$ docker-compose up -d
+----
+
+build::
+
+[source,sh]
+----
+$ ./gradlew
+----
+
+exec::
+
+[source,sh]
+----
+$ java -jar ./publisher/build/libs/publisher-0.0.1-SNAPSHOT.jar
+$ java -jar ./processor/build/libs/processor-0.0.1-SNAPSHOT.jar
+$ java -jar ./receiver/build/libs/receiver-0.0.1-SNAPSHOT.jar
+----
+
+check::
+
+[source,sh]
+----
+$ curl localhost:8080/actuator/prometheus
+$ curl localhost:8081/actuator/prometheus
+$ curl localhost:8082/actuator/prometheus
+----

@@ -1,0 +1,6 @@
+scrape_configs:
+  - job_name: 'spring-app'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      # pull対象を指定する。起動しているAPのURLに合わせる。
+      - targets: ['192.168.10.10:8080','192.168.10.10:8081','192.168.10.10:8082']

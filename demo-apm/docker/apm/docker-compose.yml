@@ -1,0 +1,28 @@
+version: '3'
+services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      # 設定ファイルを設定する
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      # ロケールを合わせる(linux)
+      # - /etc/localtime:/etc/localtime:ro
+      # 収集したデータを永続化する
+      # - prometheus-data:/prometheus-data
+    ports:
+      - 9090:9090
+  grafana:
+    image: grafana/grafana
+    # volumes:
+      # ロケールを合わせる(linux)
+      # - /etc/localtime:/etc/localtime:ro
+      # Grafanaの設定類を永続化する
+      # - grafana-data:/var/lib/grafana
+    ports:
+      - 3000:3000
+    env_file:
+      # 環境変数を設定してGrafanaの設定を変更する
+      - ./grafana.env
+# volumes:
+  # grafana-data:
+  # prometheus-data:
