@@ -97,6 +97,4 @@ OpenShiftでは `prometheus + grafana` + `jaegar` + `Fluentd + ElasticSearch` �
 
 === Let's Try
 
-`demo-apm` で みてみる。
-
-(Trace系はまだです…)
+`demo-apm` で 体感してみる。
